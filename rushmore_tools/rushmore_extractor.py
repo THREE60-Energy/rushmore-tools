@@ -6,8 +6,6 @@ import requests
 class RushmoreExtractor:
     """Class used to extract raw data from the Rushmore API.
 
-    The
-
     Typical usage:
         e = RushmoreExtractor(${API-KEY}, "CPR")
         data = e.get_all_data()
@@ -59,6 +57,11 @@ class RushmoreExtractor:
         return requests.get(url=url, headers=self._header).json()
 
     def _get_wellcount(self):
+        """TODO: Investigate whether this can be covered by
+        a specific API call against the Rushmore API.
+
+        Currently unusable since the response time is ~5 sec.
+        """
         return self._get_data_page(1, 1)["TotalWells"]
 
     def _check_error(self, response: Dict[str, Any]):
