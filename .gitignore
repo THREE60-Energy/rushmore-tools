@@ -5,6 +5,7 @@ __pycache__/
 
 # Local test files
 test.py
+testing.ipynb
 test.yaml
 *.pyc
 .pytest_cache

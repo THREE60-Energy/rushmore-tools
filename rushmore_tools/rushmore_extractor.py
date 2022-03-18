@@ -6,6 +6,12 @@ import requests
 class RushmoreExtractor:
     """Class used to extract raw data from the Rushmore API.
 
+    The
+
+    Typical usage:
+        e = RushmoreExtractor(${API-KEY}, "CPR")
+        data = e.get_all_data()
+
     Args:
         api_key: The X-API-Key provided to Rushmore participants that
           allows access to the Rushmore API.
@@ -18,6 +24,8 @@ class RushmoreExtractor:
           that will be fetched per page. The current limit is based on
           size. Each response may not exceed 10 MiB.
 
+    Raises:
+        ValueError: If the submitted report name is not supported.
     """
 
     def __init__(
@@ -29,12 +37,12 @@ class RushmoreExtractor:
     ) -> None:
         if report_name.lower() not in ("apr", "cpr", "dpr"):
             raise ValueError(f"Report name {report_name} is not supported.")
-        self.report_name = report_name
-        self.page_size = page_size
-        self.base_url = (
+        self._report_name = report_name
+        self._page_size = page_size
+        self._base_url = (
             f"https://data-api.rushmorereviews.com/v{api_version}/wells/{report_name}"
         )
-        self.header: dict = {"X-API-key": api_key}
+        self._header: dict = {"X-API-key": api_key}
 
     def _get_data_page(self, page_size: int, page: Optional[int] = 1) -> Dict[str, Any]:
         """Queries data from Rushmore.
@@ -47,8 +55,8 @@ class RushmoreExtractor:
             One page of data from Rushmore as a JSON serializable
             dictionary with keys according to the standard API payload.
         """
-        url = f"{self.base_url}?page={page}&pageSize={page_size}"
-        return requests.get(url=url, headers=self.header).json()
+        url = f"{self._base_url}?page={page}&pageSize={page_size}"
+        return requests.get(url=url, headers=self._header).json()
 
     def _get_wellcount(self):
         return self._get_data_page(1, 1)["TotalWells"]
@@ -68,13 +76,15 @@ class RushmoreExtractor:
             pass
         else:
             if error == "Body buffer overflow":
-                raise ValueError(f"Page size of {self.page_size} is too large.")
+                raise ValueError(f"Page size of {self._page_size} is too large.")
 
     def get_all_data(self) -> list[Dict[str, Any]]:
         """Queries all data from Rushmore.
 
         For the instantiated performance review, iterates through all
         available pages to query an unfiltered list of rows.
+
+        TODO: Look into improving looping logic.
 
         Returns:
             A list of dicts that each describe a well in the instantiated
@@ -83,13 +93,12 @@ class RushmoreExtractor:
         output = []
         page = 1
         while True:
-            print(f"Fetching page {page} from {self.report_name.upper()}")
-            response = self._get_data_page(self.page_size, page)
+            print(f"Fetching page {page} from {self._report_name.upper()}")
+            response = self._get_data_page(self._page_size, page)
             self._check_error(response)
-
+            print(f"Fetched {len(response['Data'])} rows.")
             output.extend(response["Data"])
             if response["TotalPages"] > page:
-                output.extend(response["Data"])
                 page += 1
             else:
-                return response
+                return output
