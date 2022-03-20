@@ -1,6 +1,10 @@
-from typing import Any, Dict, Optional
+import logging
+from optparse import Option
+from typing import Any, Dict, List, Optional
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 class RushmoreExtractor:
@@ -32,6 +36,7 @@ class RushmoreExtractor:
         report_name: str,
         api_version: Optional[str] = "0.1",
         page_size: Optional[int] = 1000,
+        logger: Optional[logging.Logger] = None,
     ) -> None:
         if report_name.lower() not in ("apr", "cpr", "dpr"):
             raise ValueError(f"Report name {report_name} is not supported.")
@@ -40,20 +45,25 @@ class RushmoreExtractor:
         self._base_url = (
             f"https://data-api.rushmorereviews.com/v{api_version}/wells/{report_name}"
         )
-        self._header: dict = {"X-API-key": api_key}
+        self._header: Dict = {"X-API-key": api_key}
 
-    def _get_data_page(self, page_size: int, page: Optional[int] = 1) -> Dict[str, Any]:
+    def _get_data_page(
+        self, page_size: int, page: Optional[int] = 1, filter: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Queries data from Rushmore.
 
         Args:
             page_size: Number of rows requested per page.
             page: The page number that is requested.
+            filter: Custom filters for what data to include.
 
         Returns:
             One page of data from Rushmore as a JSON serializable
             dictionary with keys according to the standard API payload.
         """
         url = f"{self._base_url}?page={page}&pageSize={page_size}"
+        if filter:
+            url = f"{url}&filter={filter}"
         return requests.get(url=url, headers=self._header).json()
 
     def _get_wellcount(self):
@@ -80,14 +90,20 @@ class RushmoreExtractor:
         else:
             if error == "Body buffer overflow":
                 raise ValueError(f"Page size of {self._page_size} is too large.")
+            else:
+                raise Exception(f"Error was thrown: {error}")
 
-    def get_all_data(self) -> list[Dict[str, Any]]:
+    def get_data(self, filter: Optional[str] = None) -> List[Dict[str, Any]]:
         """Queries all data from Rushmore.
 
         For the instantiated performance review, iterates through all
         available pages to query an unfiltered list of rows.
 
         TODO: Look into improving looping logic.
+
+        Args:
+            filter: Submit a well-formed filter string according to the Rushmore
+              API specification. This filter will be passed to the API.
 
         Returns:
             A list of dicts that each describe a well in the instantiated
@@ -96,12 +112,13 @@ class RushmoreExtractor:
         output = []
         page = 1
         while True:
-            print(f"Fetching page {page} from {self._report_name.upper()}")
-            response = self._get_data_page(self._page_size, page)
+            logger.info(f"Fetching page {page} from {self._report_name.upper()}")
+            response = self._get_data_page(self._page_size, page, filter)
             self._check_error(response)
-            print(f"Fetched {len(response['Data'])} rows.")
+            logger.info(f"Fetched {len(response['Data'])} rows.")
             output.extend(response["Data"])
             if response["TotalPages"] > page:
                 page += 1
             else:
+                logger.info(f"Extraction complete. {len(response):,} rows feetched.")
                 return output
