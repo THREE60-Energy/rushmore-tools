@@ -4,7 +4,9 @@ __pycache__/
 *$py.class
 
 # Local test files
+test_data/
 test.py
+testing.py
 testing.ipynb
 test.yaml
 *.pyc

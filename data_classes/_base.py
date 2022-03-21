@@ -1,4 +1,7 @@
-from dataclasses import dataclass
-from typing import Optional
+from pydantic import BaseModel
 
-pass
+
+class _RushmoreBaseModel(BaseModel):
+    class Config:
+        extra = "ignore"
+        validate_assignment = True
