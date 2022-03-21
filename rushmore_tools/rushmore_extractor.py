@@ -36,7 +36,6 @@ class RushmoreExtractor:
         report_name: str,
         api_version: Optional[str] = "0.1",
         page_size: Optional[int] = 1000,
-        logger: Optional[logging.Logger] = None,
     ) -> None:
         if report_name.lower() not in ("apr", "cpr", "dpr"):
             raise ValueError(f"Report name {report_name} is not supported.")
@@ -120,5 +119,5 @@ class RushmoreExtractor:
             if response["TotalPages"] > page:
                 page += 1
             else:
-                logger.info(f"Extraction complete. {len(response):,} rows feetched.")
+                logger.info(f"Extraction complete. {len(output):,} rows fetched.")
                 return output

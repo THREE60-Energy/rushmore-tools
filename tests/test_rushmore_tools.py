@@ -20,7 +20,7 @@ def test_rushmore_error_check_with_error():
 def test_rushmore_error_checks_without_error():
     Test = RushmoreExtractor("ABC", "CPR")
 
-    assert Test.report_name == "CPR"
-    assert Test.base_url == "https://data-api.rushmorereviews.com/v0.1/wells/CPR"
-    assert Test.page_size == 1000
+    assert Test._report_name == "CPR"
+    assert Test._base_url == "https://data-api.rushmorereviews.com/v0.1/wells/CPR"
+    assert Test._page_size == 1000
     assert Test._check_error({"whatever": "test"}) is None
