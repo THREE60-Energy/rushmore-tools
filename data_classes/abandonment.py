@@ -152,6 +152,7 @@ class RushmoreAbandonment(_RushmoreBaseModel):
     datapoints available in the Rushmore API.
     """
 
+    # Own attributes
     WellId: int
     OperatorId: int
     OperatorStatusRevYrId: int
@@ -196,6 +197,7 @@ class RushmoreAbandonment(_RushmoreBaseModel):
     HasPhase1Data: bool
     HasPhase2Data: bool
     HasPhase3Data: bool
+    # Subclasses
     Location: _Location
     PreparatoryWork: _PreparatoryWork
     Phase1: _Phase1
