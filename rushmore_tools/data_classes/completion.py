@@ -65,7 +65,7 @@ class _FinalCasing(RushmoreBaseModel):
     BorePrep: _BorePrep
 
 
-class _CleanUp:
+class _CleanUp(RushmoreBaseModel):
     TotalDays: Optional[float]
     NPT: Optional[float] = Field(alias="NPTDaysExcludingWoW")
     WOW: Optional[float] = Field(alias="WoWDays")
