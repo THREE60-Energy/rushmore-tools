@@ -20,6 +20,24 @@ class _PreparatoryWork(RushmoreBaseModel):
     PT: Optional[float] = Field(alias="ProductiveTime")
     Cost: Optional[float]
 
+    def __init__(self, **data):
+        super().__init__(**data)
+
+        self.RigType = self._rig_type(self.RigType)
+
+    def _rig_type(self, arg: Optional[str]) -> str:
+        rig_types = {
+            "PL": "Platform",
+            "JP": "Jack-up",
+            "JK": "Jack-up",
+            "DS": "Drillship",
+            "SS": "Semi-Submersible",
+        }
+        if arg:
+            return rig_types.get(arg, arg)
+        else:
+            return "N/A"
+
 
 class _CostsVariant(RushmoreBaseModel):
     PerDay: Optional[float]
@@ -145,7 +163,7 @@ class _Phase3(RushmoreBaseModel):
     IncludingPrep: _Subdivision
 
 
-class RushmoreAbandonment(RushmoreBaseModel):
+class RushmoreAbandonmentWell(RushmoreBaseModel):
     """Class for converting RAW output from Rushmore APR with cleaners and filters.
 
     The goal with this class is to predefined a set of rules for handling the different
@@ -213,5 +231,5 @@ class RushmoreAbandonment(RushmoreBaseModel):
         super().__init__(**data)
 
 
-class RushmoreAbandonments(RushmoreBaseModel):
-    Abandonments: List[RushmoreAbandonment]
+class RushmoreAbandonmentWells(RushmoreBaseModel):
+    Wells: List[RushmoreAbandonmentWell]

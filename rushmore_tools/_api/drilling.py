@@ -1,18 +1,17 @@
-import json
 from typing import Any, Dict, List, Optional
 
 from ..data_classes._base import RushmoreResponse
-from ..data_classes.abandonment import RushmoreAbandonmentWells
+from ..data_classes.drilling import RushmoreDrillWells
 from ._common import get_all_data
 
 
-class AbandonmentAPI:
+class DrillingAPI:
     def __init__(
         self,
         api_key: str,
         page_size: Optional[int] = 1000,
     ):
-        self.report_name: str = "APR"
+        self.report_name: str = "DPR"
         self.api_key = api_key
         self.page_size = page_size
 
@@ -31,13 +30,13 @@ class AbandonmentAPI:
         self,
         filter: Optional[str] = None,
     ) -> RushmoreResponse:
-        """Retrieves all raw data from Rushmore Abandonment Performance Review.
+        """Retrieves all raw data from Rushmore Drilling Performance Review.
 
         Args:
             filter: Filtering string according to API specification.
 
         Returns:
-            List of dicts where each dict describes a well in the Abandonment
+            List of dicts where each dict describes a well in the Drilling
             Performance Review.
 
         """
@@ -46,14 +45,14 @@ class AbandonmentAPI:
         )
 
     def _process_data(self, data: RushmoreResponse):
-        cleaned = RushmoreAbandonmentWells(Wells=data["Data"]).dict()
+        cleaned = RushmoreDrillWells(Wells=data["Data"]).dict()
         return cleaned["Abandonments"]
 
     def get_processed_data(
         self,
         filter: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
-        """Retrieves processed data from Rushmore Abandonment Performance Review.
+        """Retrieves processed data from Rushmore Drilling Performance Review.
 
         This function filters less valuable data and cleans up inconsistencies.
 
@@ -63,7 +62,7 @@ class AbandonmentAPI:
         Example:
 
             >>> filter = "Location.Country eq 'Norway'"
-            >>> e.abandonments.get_processed_data(filter)
+            >>> e.drilling.get_processed_data(filter)
 
         """
         data = self._get_data(
