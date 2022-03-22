@@ -1,8 +1,9 @@
 import logging
-from optparse import Option
 from typing import Any, Dict, List, Optional
 
 import requests
+
+from ._api.abandonment import AbandonmentAPI
 
 logger = logging.getLogger(__name__)
 
@@ -17,14 +18,6 @@ class RushmoreExtractor:
     Args:
         api_key: The X-API-Key provided to Rushmore participants that
           allows access to the Rushmore API.
-        report_name: The target Rushmore Performance Report for pulling
-          data. Alternatives include e.g. APR, CPR, DPR and depends on
-          which reviews the participant has access to.
-        api_version: Optional parameter designating the API version to be
-          used when sending requests to the API.
-        page_size: Optional parameter that specifies the number of rows
-          that will be fetched per page. The current limit is based on
-          size. Each response may not exceed 10 MiB.
 
     Raises:
         ValueError: If the submitted report name is not supported.
