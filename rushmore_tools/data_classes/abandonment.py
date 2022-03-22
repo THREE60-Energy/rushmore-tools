@@ -1,14 +1,22 @@
+import logging
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
-from pydantic import Field
+from pydantic import Field, ValidationError, validator
 
 from ._base import RushmoreBaseModel
+
+logger = logging.getLogger(__name__)
 
 
 class _Location(RushmoreBaseModel):
     Region: str
     Country: str
+
+    @validator("Country")
+    def country_must_be_norway(cls, v):
+        assert v == "Norway"
+        return v
 
 
 class _PreparatoryWork(RushmoreBaseModel):
@@ -232,4 +240,18 @@ class RushmoreAbandonmentWell(RushmoreBaseModel):
 
 
 class RushmoreAbandonmentWells(RushmoreBaseModel):
-    Wells: List[RushmoreAbandonmentWell]
+    Wells: Optional[List[RushmoreAbandonmentWell]] = None
+
+    def __init__(self, wells: List[Dict[str, Any]], **data: Any):
+        super().__init__(**data)
+        invalid = 0
+        if self.Wells is None:
+            self.Wells = []
+        for well in wells:
+            try:
+                self.Wells.append(RushmoreAbandonmentWell(**well))
+            except ValidationError:
+                invalid += 1
+        logger.debug(
+            f"Initialized {len(self.Wells):,} wells, found {invalid:,} invalid configurations."
+        )
