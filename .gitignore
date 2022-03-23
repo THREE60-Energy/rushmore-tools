@@ -61,7 +61,7 @@ htmlcov/
 .cache
 test-report.xml
 nosetests.xml
-coverage.xml
+# coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/

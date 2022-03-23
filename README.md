@@ -2,6 +2,7 @@
 THREE60 Energy `rushmore-tools`
 ================================
 [![Build Status](https://github.com/THREE60-Energy/rushmore-tools/workflows/release/badge.svg)](https://github.com/THREE60-Energy/rushmore-tools/actions)
+[![codecov](https://app.codecov.io/gh/THREE60-Energy/rushmore-tools/branch/master/graph/badge.svg)](https://app.codecov.io/gh/THREE60-Energy/rushmore-tools)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 The `rushmore-tools` package is a collection of tools developed for handling Rushmore Performance Review data developed by THREE60 Energy Norway.
@@ -42,5 +43,4 @@ $ poetry run pre-commit install
 ```
 
 Each public method, class and module should have docstrings. Docstrings are written in the [Google
-style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings). Please include unit and/or
-integration tests for submitted code, and remember to update the [changelog](./CHANGELOG.md).
+style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings).

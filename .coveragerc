@@ -1,0 +1,5 @@
+[run]
+source = rushmore_extractor
+
+[xml]
+output = ./coverage.xml
