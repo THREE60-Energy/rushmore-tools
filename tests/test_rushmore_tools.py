@@ -1,14 +1,14 @@
 import pytest
-import requests
+from requests_mock import Mocker
 
-from rushmore_extractor._api.api import (
+from rushmore_tools._api.api import (
     RushmoreReport,
     _check_response,
     get_data,
     get_data_page,
 )
-from rushmore_extractor.rushmore_extractor import RushmoreExtractor
-from rushmore_extractor.utils.conversion_functions import hole_type, rig_type, well_type
+from rushmore_tools.rushmore_extractor import RushmoreExtractor
+from rushmore_tools.utils.conversion_functions import hole_type, rig_type, well_type
 
 
 def test_check_response():
@@ -68,26 +68,42 @@ def test_well_type():
     assert well_type("foo") == None
 
 
-def test_rushmore_report(requests_mock):
+def test_rushmore_report(requests_mock: Mocker):
+    # Instantiating class
     api_key = "ABC"
     page_size = 100
     a = RushmoreReport("APR", api_key, page_size)
+
+    # Testing basic properties
     assert a.api_key == api_key
     assert a.page_size == page_size
     assert a.report_name == "APR"
 
+    # Testing get function
     url = f'https://data-api.rushmorereviews.com/v0.1/wells/{a.report_name}?page=1&pageSize={page_size}&filter=Location.Country eq "Norway"'
     response = {"TotalPages": 1, "Data": "Hello World"}
-
     requests_mock.get(url, json=response)
-
     assert response["Data"] == a.get(
-        filter='Location.Country eq "Norway"',
+        data_filter='Location.Country eq "Norway"',
         full_response=False,
     )
 
+    # Testing page size setter
+    with pytest.raises(ValueError):
+        a.page_size = -1
+    with pytest.raises(TypeError):
+        a.page_size = 2.3
+    with pytest.raises(TypeError):
+        a.page_size = "Hello"
 
-def test_get_data_page(requests_mock):
+    # Checking that valid size raises exception
+    try:
+        a.page_size = 4
+    except:
+        assert False, f"Setter raised exception."
+
+
+def test_get_data_page(requests_mock: Mocker):
     url = 'https://data-api.rushmorereviews.com/v0.1/wells/APR?page=1&pageSize=1&filter=Location.Country eq "Norway"'
     response = {"Hello": "World", "Key": 123}
     requests_mock.get(url, json=response)
@@ -96,11 +112,11 @@ def test_get_data_page(requests_mock):
         report_name="APR",
         page=1,
         page_size=1,
-        filter='Location.Country eq "Norway"',
+        data_filter='Location.Country eq "Norway"',
     )
 
 
-def test_get_data(requests_mock):
+def test_get_data(requests_mock: Mocker):
     # Parameters
     _filter = 'Location.Country eq "Norway"'
     _page_size = 2
@@ -127,24 +143,24 @@ def test_get_data(requests_mock):
         full_response=True,
         page_size=_page_size,
         max_pages=2,
-        filter=_filter,
+        data_filter=_filter,
     )
 
     assert partial_response == get_data(
         api_key="ABC",
-        report_name="APR",
+        report_name=_report_name,
         full_response=False,
         page_size=2,
         max_pages=2,
-        filter='Location.Country eq "Norway"',
+        data_filter=_filter,
     )
 
     assert all_pages == get_data(
         api_key="ABC",
-        report_name="APR",
+        report_name=_report_name,
         full_response=False,
         page_size=2,
-        filter='Location.Country eq "Norway"',
+        data_filter=_filter,
     )
 
 

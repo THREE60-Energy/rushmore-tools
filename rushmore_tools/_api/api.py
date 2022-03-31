@@ -21,7 +21,7 @@ class RushmoreReport:
     """Basic class for adding reports as subclasses to RushmoreExtractor."""
 
     def __init__(self, report_name: str, api_key: str, page_size: Optional[int] = 1000):
-        self.api_key = (api_key,)
+        self.api_key = api_key
         self.report_name = report_name
         self._page_size = page_size
 
