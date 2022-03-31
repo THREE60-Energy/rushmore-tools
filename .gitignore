@@ -65,6 +65,7 @@ nosetests.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+.pylintrc
 
 # Translations
 *.mo

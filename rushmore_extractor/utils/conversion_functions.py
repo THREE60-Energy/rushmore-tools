@@ -1,4 +1,5 @@
-from typing import Any, Dict, List, Optional, Tuple
+"""Some resources for cleaning Rushmore data."""
+from typing import Optional, Tuple
 
 
 def rig_type(arg: str) -> Tuple[str, bool]:
@@ -41,31 +42,32 @@ def rig_type(arg: str) -> Tuple[str, bool]:
     if not arg:
         return ("N/A", False)
 
-    distinct_rigs = {i for i in rig_types.keys() if i in arg}
+    distinct_rigs = {i for i in rig_types if i in arg}
 
     if not distinct_rigs:
         raise ValueError(f"Rig type designation '{arg}' is unknown.")
 
     if len(distinct_rigs) > 1:
         if distinct_rigs == {"SS", "TS"}:
-            rig_type = rig_types["SS"]
+            output_type = rig_types["SS"]
         elif distinct_rigs == {"BA", "TB"}:
-            rig_type = rig_types["BA"]
+            output_type = rig_types["BA"]
         elif distinct_rigs == {"JK", "TJ"}:
-            rig_type = rig_types["JK"]
+            output_type = rig_types["JK"]
         else:
-            rig_type = "Several"
+            output_type = "Several"
     else:
         [rig] = distinct_rigs
-        rig_type = rig_types[rig]
+        output_type = rig_types[rig]
 
     # Assuming if dual action is listed among a list of rigs, it is significant
     is_dual_action = "(2)" in arg
 
-    return (rig_type, is_dual_action)
+    return (output_type, is_dual_action)
 
 
 def hole_type(arg: str) -> Optional[str]:
+    """Converts Rushmore hole types to text."""
     hole_types = {
         "N": "New well",
         "G": "Geological sidetrack",
@@ -76,6 +78,7 @@ def hole_type(arg: str) -> Optional[str]:
 
 
 def well_type(arg: str) -> Optional[str]:
+    """Converts Rushmore well types to text."""
     well_types = {
         "E": "Exploration",
         "D": "Development",

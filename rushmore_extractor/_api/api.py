@@ -1,5 +1,6 @@
+"""API functions and related classes for RushmoreExtractor."""
+
 import logging
-import os
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
 import requests
@@ -13,7 +14,62 @@ class RushmoreResponse(TypedDict):
     TotalWells: Optional[int]
     TotalPages: Optional[int]
     PageInfo: Optional[Dict[str, Any]]
-    Data: Optional[List[Dict[str, Any]]]
+    Data: Optional[List[Any]]
+
+
+class RushmoreReport:
+    """Basic class for adding reports as subclasses to RushmoreExtractor."""
+
+    def __init__(self, report_name: str, api_key: str, page_size: Optional[int] = 1000):
+        self.api_key = (api_key,)
+        self.report_name = report_name
+        self._page_size = page_size
+
+    @property
+    def page_size(self):
+        """For making page_size an editable property."""
+        return self._page_size
+
+    @page_size.setter
+    def page_size(self, value):
+        if value > 0 and isinstance(value, int):
+            self._page_size = value
+        elif not isinstance(value, int):
+            raise TypeError("Incorrect type. Specify a positive integer for page size.")
+        else:
+            raise ValueError(
+                "Incorrect value. Specify a positive integer for page size."
+            )
+
+    def get(
+        self,
+        data_filter: Optional[str] = None,
+        full_response: Optional[bool] = True,
+        max_pages: Optional[int] = None,
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+        """Retrieves all raw data from relevant Rushmore Review.
+
+        Args:
+            data_filter: Filtering string according to API specification.
+            full_response: Pass True to retrieve full response from Rushmore.
+              False retrieves only the well data list component.
+            max_pages: Optional argument to reduce number of pages retrieved
+              from Rushmore, for testing purposes.
+
+        Returns:
+            List of dicts where each dict describes an entry in the Rushmore
+            Review.
+
+        """
+
+        return get_data(
+            api_key=self.api_key,
+            report_name=self.report_name,
+            full_response=full_response,
+            page_size=self.page_size,
+            data_filter=data_filter,
+            max_pages=max_pages,
+        )
 
 
 def get_data_page(
@@ -22,14 +78,14 @@ def get_data_page(
     page_size: int,
     api_version: Optional[str] = "0.1",
     page: Optional[int] = 1,
-    filter: Optional[str] = None,
+    data_filter: Optional[str] = None,
 ) -> RushmoreResponse:
     """Queries data from Rushmore.
 
     Args:
         page_size: Number of rows requested per page.
         page: The page number that is requested.
-        filter: Custom filters for what data to include.
+        data_filter: Custom filters for what data to include.
 
     Returns:
         One page of data from Rushmore as a JSON serializable
@@ -41,8 +97,8 @@ def get_data_page(
         f"https://data-api.rushmorereviews.com/v{api_version}/wells/{report_name}"
     )
     url = f"{base_url}?page={page}&pageSize={page_size}"
-    if filter:
-        url = f"{url}&filter={filter}"
+    if data_filter:
+        url = f"{url}&filter={data_filter}"
 
     response = requests.get(
         url=url,
@@ -55,7 +111,7 @@ def get_data_page(
     return response.json()
 
 
-def _check_response(response: RushmoreResponse) -> None:
+def _check_response(response: Dict[str, Any]) -> None:
     """Simple check for overflow error in response.
 
     Args:
@@ -72,9 +128,8 @@ def _check_response(response: RushmoreResponse) -> None:
     else:
         error: str = response["fault"]["faultstring"]
         if error == "Body buffer overflow":
-            raise ValueError(f"Response too large. Reduce page size.")
-        else:
-            raise Exception(f"Error was thrown: {error}.")
+            raise ValueError("Response too large. Reduce page size.")
+        raise Exception(f"Error was thrown: {error}.")
     try:
         response["error"]
     except KeyError:
@@ -89,7 +144,7 @@ def get_data(
     report_name: str,
     full_response: Optional[bool] = True,
     page_size: Optional[int] = 1000,
-    filter: Optional[str] = None,
+    data_filter: Optional[str] = None,
     max_pages: Optional[int] = None,
 ) -> Union[RushmoreResponse, List[Dict[str, Any]]]:
     """Queries all data from Rushmore.
@@ -100,7 +155,7 @@ def get_data(
     TODO: Look into improving looping logic.
 
     Args:
-        filter: Submit a well-formed filter string according to the Rushmore
+        data_filter: Submit a well-formed filter string according to the Rushmore
             API specification. This filter will be passed to the API.
 
     Returns:
@@ -120,7 +175,7 @@ def get_data(
             report_name=report_name,
             page_size=page_size,
             page=page,
-            filter=filter,
+            data_filter=data_filter,
         )
 
         # Response checker catches error / failure responses
@@ -128,11 +183,14 @@ def get_data(
 
         logger.info(f"Fetched {len(response['Data'])} rows.")
         if output:
-            output["Data"].extend(response["Data"])
+            output["Data"].extend(  # pylint: disable=unsubscriptable-object
+                response["Data"]
+            )
         else:
             output = response
 
-        # Determine number of pages to fetch. TODO: Revise logic if lightweight API calls are available.
+        # Determine number of pages to fetch.
+        # TODO: Revise logic if lightweight API calls are available.
         if not max_pages:
             num_pages = response["TotalPages"]
         else:
@@ -144,5 +202,4 @@ def get_data(
             logger.info(f"Extraction complete. {len(output['Data']):,} rows fetched.")
             if full_response:
                 return output
-            else:
-                return output["Data"]
+            return output["Data"]

@@ -1,10 +1,12 @@
 import pytest
 import requests
 
-from rushmore_extractor._api._common import _check_response, get_data, get_data_page
-from rushmore_extractor._api.abandonment import AbandonmentAPI
-from rushmore_extractor._api.completion import CompletionAPI
-from rushmore_extractor._api.drilling import DrillingAPI
+from rushmore_extractor._api.api import (
+    RushmoreReport,
+    _check_response,
+    get_data,
+    get_data_page,
+)
 from rushmore_extractor.rushmore_extractor import RushmoreExtractor
 from rushmore_extractor.utils.conversion_functions import hole_type, rig_type, well_type
 
@@ -66,51 +68,13 @@ def test_well_type():
     assert well_type("foo") == None
 
 
-def test_abandonment_api(requests_mock):
+def test_rushmore_report(requests_mock):
     api_key = "ABC"
     page_size = 100
-    a = AbandonmentAPI(api_key, page_size)
+    a = RushmoreReport("APR", api_key, page_size)
     assert a.api_key == api_key
     assert a.page_size == page_size
     assert a.report_name == "APR"
-
-    url = f'https://data-api.rushmorereviews.com/v0.1/wells/{a.report_name}?page=1&pageSize={page_size}&filter=Location.Country eq "Norway"'
-    response = {"TotalPages": 1, "Data": "Hello World"}
-
-    requests_mock.get(url, json=response)
-
-    assert response["Data"] == a.get(
-        filter='Location.Country eq "Norway"',
-        full_response=False,
-    )
-
-
-def test_completion_api(requests_mock):
-    api_key = "ABC"
-    page_size = 100
-    a = CompletionAPI(api_key, page_size)
-    assert a.api_key == api_key
-    assert a.page_size == page_size
-    assert a.report_name == "CPR"
-
-    url = f'https://data-api.rushmorereviews.com/v0.1/wells/{a.report_name}?page=1&pageSize={page_size}&filter=Location.Country eq "Norway"'
-    response = {"TotalPages": 1, "Data": "Hello World"}
-
-    requests_mock.get(url, json=response)
-
-    assert response["Data"] == a.get(
-        filter='Location.Country eq "Norway"',
-        full_response=False,
-    )
-
-
-def test_drilling_api(requests_mock):
-    api_key = "ABC"
-    page_size = 100
-    a = DrillingAPI(api_key, page_size)
-    assert a.api_key == api_key
-    assert a.page_size == page_size
-    assert a.report_name == "DPR"
 
     url = f'https://data-api.rushmorereviews.com/v0.1/wells/{a.report_name}?page=1&pageSize={page_size}&filter=Location.Country eq "Norway"'
     response = {"TotalPages": 1, "Data": "Hello World"}
