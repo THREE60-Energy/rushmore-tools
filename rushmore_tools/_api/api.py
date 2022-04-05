@@ -121,22 +121,23 @@ def _check_response(response: Dict[str, Any]) -> None:
         ValueError if page size causes response to overflow.
     """
     logger.debug("Checking response for error messages.")
+
+    # Handling returned faults
     try:
-        response["fault"]
+        error: str = response["fault"]["faultstring"]
     except KeyError:
         pass
     else:
-        error: str = response["fault"]["faultstring"]
         if error == "Body buffer overflow":
             raise ValueError("Response too large. Reduce page size.")
-        raise Exception(f"Error was thrown: {error}.")
+
+    # Handling returned errors
     try:
-        response["error"]
+        error: str = response["error_description"]
     except KeyError:
         pass
     else:
-        error: str = response["error_description"]
-        raise Exception(f"Error was thrown: {error}.")
+        raise ValueError(error)
 
 
 def get_data(
