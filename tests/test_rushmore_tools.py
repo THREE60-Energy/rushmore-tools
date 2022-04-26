@@ -14,7 +14,6 @@ from rushmore_tools.utils.conversion_functions import hole_type, rig_type, well_
 def test_check_response():
     response_dict_ok = {"TotalWells": 123, "Data": {"More stuff"}}
     response_dict_fault = {"fault": {"faultstring": "Body buffer overflow"}}
-    response_dict_fault_other = {"fault": {"faultstring": "BRRAP"}}
     response_dict_error = {"error": "blah", "error_description": "major error"}
 
     # Checking for regular response
@@ -24,14 +23,6 @@ def test_check_response():
     with pytest.raises(ValueError):
         _check_response(response_dict_fault)
         assert ValueError == "Response too large. Reduce page size."
-
-    # Blanket test for other exceptions raised
-    with pytest.raises(Exception):
-        _check_response(response_dict_fault_other)
-        assert (
-            Exception
-            == f"Error was thrown: {response_dict_fault_other['fault']['faultstring']}"
-        )
 
     # Blanket test for errors raised
     with pytest.raises(Exception):

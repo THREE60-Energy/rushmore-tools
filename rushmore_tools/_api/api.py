@@ -93,17 +93,14 @@ def get_data_page(
     """
     # Rushmore API uses X-API-key authorization.
     header = {"X-API-key": api_key}
-    base_url = (
-        f"https://data-api.rushmorereviews.com/v{api_version}/wells/{report_name}"
-    )
-    url = f"{base_url}?page={page}&pageSize={page_size}"
-    if data_filter:
-        url = f"{url}&filter={data_filter}"
+    url = f"https://data-api.rushmorereviews.com/v{api_version}/wells/{report_name}"
+    params = {
+        "page": page,
+        "pagesize": page_size,
+        "filter": data_filter,
+    }
 
-    response = requests.get(
-        url=url,
-        headers=header,
-    )
+    response = requests.get(url=url, headers=header, params=params)
 
     # Checks for non-2xx responses
     response.raise_for_status()
@@ -129,7 +126,6 @@ def _check_response(response: Dict[str, Any]) -> None:
         error: str = response["fault"]["faultstring"]
         if error == "Body buffer overflow":
             raise ValueError("Response too large. Reduce page size.")
-        raise Exception(f"Error was thrown: {error}.")
     try:
         response["error"]
     except KeyError:
