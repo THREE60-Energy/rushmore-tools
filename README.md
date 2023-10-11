@@ -1,7 +1,7 @@
 
 THREE60 Energy `rushmore-tools`
 ================================
-[![Build Status](https://github.com/THREE60-Energy/rushmore-tools/workflows/release/badge.svg)](https://github.com/THREE60-Energy/rushmore-tools/actions)
+[![release](https://github.com/THREE60-Energy/rushmore-tools/actions/workflows/release.yml/badge.svg)](https://github.com/THREE60-Energy/rushmore-tools/actions/workflows/release.yml)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 The `rushmore-tools` package is a lightweight wrapper for accessing Rushmore Reviews, a prominent player in benchmarking data collection for upstream oil & gas activities.
