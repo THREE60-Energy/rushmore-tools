@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rushmore-tools"
-version = "0.1.2"
+version = "1.0.0"
 description = ""
 authors = ["Marcus Risanger <69350948+MarcusRisanger@users.noreply.github.com>"]
 readme = "README.md"
@@ -19,10 +19,10 @@ requests = "^2.27.1"
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
 isort = "^5.10.1"
-coverage = "^6.3.2"
-requests-mock = "^1.9.3"
 pylint = "^2.13.4"
-pytest = "^6.2.5"
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.25.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

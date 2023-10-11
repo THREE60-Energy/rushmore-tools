@@ -2,15 +2,25 @@
 THREE60 Energy `rushmore-tools`
 ================================
 [![Build Status](https://github.com/THREE60-Energy/rushmore-tools/workflows/release/badge.svg)](https://github.com/THREE60-Energy/rushmore-tools/actions)
-[![codecov](https://codecov.io/gh/THREE60-Energy/rushmore-tools/branch/main/graph/badge.svg)](https://codecov.io/gh/THREE60-Energy/rushmore-tools)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
-The `rushmore-tools` package is a collection of tools developed for handling Rushmore Performance Review data developed by THREE60 Energy Norway.
+The `rushmore-tools` package is a lightweight wrapper for accessing Rushmore Reviews, a prominent player in benchmarking data collection for upstream oil & gas activities.
 
 Overview
 ================================
 The collection contains utilities:
 - RushmoreExtractor
+
+## Usage
+
+Simple usage. E.g. to download all Rushmore Drilling Performance Review data available to your API key, simply:
+
+```
+from rushmore_tools import RushmoreExtractor
+
+report = RushmoreExtractor($api_key).report("DPR")
+resp = report.get()
+```
 
 
 ## Development environment

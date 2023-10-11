@@ -15,6 +15,7 @@ Includes possibility for passing filters to fetch only desired data.
 """
 
 import logging
+from typing import Literal, Optional
 
 from ._api.api import RushmoreReport
 
@@ -36,8 +37,29 @@ class RushmoreExtractor:
     def __init__(
         self,
         api_key: str,
-        # TODO: Check if API key can be validated on initialization
     ) -> None:
-        self.abandonment = RushmoreReport("APR", api_key)
-        self.completion = RushmoreReport("CPR", api_key)
-        self.drilling = RushmoreReport("DPR", api_key)
+        self._api_key = api_key
+
+    @property
+    def api_key(self):
+        return self._api_key
+
+    @api_key.setter
+    def api_key(self, value):
+        if isinstance(value, str):
+            self._api_key = value
+        else:
+            raise ValueError("Not a valid API key.")
+
+    def report(
+        self,
+        report: Literal["APR", "CPR", "DPR"],
+        page_size: int = 1000,
+        api_version: Optional[str] = "v0.1",
+    ):
+        return RushmoreReport(
+            report,
+            api_key=self._api_key,
+            page_size=page_size,
+            api_version=api_version,
+        )
