@@ -54,11 +54,3 @@ $ poetry run pre-commit install
 
 Each public method, class and module should have docstrings. Docstrings are written in the [Google
 style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings).
-
-### Testing
-
-To produce Coverage tests, run the following commands
-```
-$ poetry run coverage run -m pytest
-$ poetry run coverage xml
-```
